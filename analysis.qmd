@@ -1,1 +1,15 @@
-# Start2
+```{r}
+#| label: load-data
+library(tidyverse)
+albums <- read_csv("musicdata7302025.csv")
+```
+
+```{r}
+#| label: separate-clean
+albums |>
+  separate_wider_regex(
+    cols = Name,
+    patterns = c(name = ".*", score = "\\d\\.\\d*"),
+    too_few = "align_start"
+  ) 
+```
