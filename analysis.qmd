@@ -11,5 +11,8 @@ albums |>
     cols = Name,
     patterns = c(name = ".*", score = "\\d\\.\\d*"),
     too_few = "align_start"
-  ) 
+  ) |>
+  mutate(
+    score = as.numeric(score)
+  )
 ```
