@@ -6,7 +6,12 @@ albums <- read_csv("musicdata7302025.csv")
 
 ```{r}
 #| label: separate-clean
-albums |>
+albumscond <- albums |>
+  count(artist) |>
+  filter(n > 2) |>
+  pull(artist)
+
+albums <- albums |>
   separate_wider_regex(
     cols = Name,
     patterns = c(name = ".*", score = "\\d\\.\\d*"),
@@ -14,5 +19,37 @@ albums |>
   ) |>
   mutate(
     score = as.numeric(score)
-  )
+  ) |>
+  filter(artist %in% albumscond)
+
+```
+
+```{r}
+#| label: analyze-artists
+albums |>
+  group_by(artist) |>
+  summarize(
+    mean = mean(score),
+    med = median(score),
+    low = min(score),
+    high = max(score)
+  ) |>
+  arrange(desc(med))
+```
+
+```{r}
+#| label: artist-progressions
+albums |>
+  filter(score >= 4) |>
+  ggplot(aes(x = year, y = score, color = artist)) +
+  geom_line()
+
+```
+
+```{r}
+#| label: year
+
+
+ggplot(albums, aes(x = year, fill = artist)) +
+  geom_histogram(binwidth = 1)
 ```
