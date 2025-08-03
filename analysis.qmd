@@ -26,30 +26,112 @@ albums <- albums |>
 
 ```{r}
 #| label: analyze-artists
+#| fig-asp: 2
 albums |>
   group_by(artist) |>
   summarize(
     mean = mean(score),
     med = median(score),
     low = min(score),
-    high = max(score)
+    high = max(score),
+    n = n()
   ) |>
   arrange(desc(med))
+
+albums |> 
+  group_by(artist) |>
+  slice_max(order_by = score, n = 3) |>
+  print(n = 1000)
+
+artsplit <- split(
+  c("Lil Uzi Vert", "Migos", "Travis Scott", "21 Savage", "DaBaby", "Playboi Carti", "Kendrick Lamar", "Kanye West", "Drake", "Tyler, the Creator", "OutKast", "A Tribe Called Quest", "Michael Jackson", "MIA"),
+  c(1,1,1,1,1,1,2,2,2,2,2,2,3,3)
+  )
+
+artsplit
+
+top3 <- function(z){
+  albums |> 
+    filter(artist %in% artsplit[[z]]) |>
+    group_by(artist) |>
+    slice_max(order_by = score, n = 3) |>
+    ungroup() |>
+    mutate(
+      artbum = paste(str_trunc(artist, 20), str_trunc(name, 20), sep = " - "),
+      artbum = factor(artbum, levels = unique(artbum))
+    ) |>
+    ggplot(aes(x = artist, y = score, fill = artbum)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    theme(
+      legend.position = "bottom",
+      legend.text = element_text(size = 7)
+      ) +
+    guides(fill = guide_legend(ncol = 3)) +
+    labs(
+      title = "top 3 albums by artist",
+      fill = ""
+    )
+}
+
 ```
 
 ```{r}
 #| label: artist-progressions
-albums |>
-  filter(score >= 4) |>
-  ggplot(aes(x = year, y = score, color = artist)) +
-  geom_line()
+
+chron <- function(z){
+  albums |>
+    filter(artist %in% z) |>
+    ggplot(aes(x = year, y = score, color = artist)) +
+    geom_point() +
+    geom_line() +
+    geom_text(aes(label = name), size = 2, nudge_y = 0.05) +
+    theme_classic()
+}
 
 ```
 
 ```{r}
 #| label: year
 
+ggplot(albums, aes(x = year, y = score)) +
+  geom_density_2d() +
+  geom_bin2d(binwidth = c(5,0.25), alpha = 0.75)
 
-ggplot(albums, aes(x = year, fill = artist)) +
+albums |>
+  summarize(
+    min = min(year),
+    q1 = quantile(year, 0.25),
+    med = median(year),
+    q3 = quantile(year, 0.75),
+    max = max(year)
+  )
+
+albums |>
+  slice_max(order_by = score, n = 20)
+
+albums |>
+  slice_max(order_by = score, n = 20) |>
+  ggplot(aes(x = year, fill = artist)) +
   geom_histogram(binwidth = 1)
+```
+
+```{r}
+#| label: function-calls
+#| fig-asp: 1.2
+
+top3(1)
+chron(c("Lil Uzi Vert", "Migos"))
+chron(c("21 Savage", "Travis Scott"))
+chron(c("DaBaby", "Playboi Carti"))
+
+top3(2)
+chron(c("A Tribe Called Quest", "OutKast"))
+chron(c("Drake", "Kendrick Lamar"))
+chron(c("Kanye West", "Kendrick Lamar"))
+chron(c("Tyler, the Creator", "Kendrick Lamar"))
+chron(c("Kanye West", "Tyler, the Creator"))
+
+top3(3)
+chron(c("Michael Jackson", "MIA"))
+
 ```
