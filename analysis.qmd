@@ -85,7 +85,10 @@ chron <- function(z){
     geom_point() +
     geom_line() +
     geom_text(aes(label = name), size = 2, nudge_y = 0.05) +
-    theme_classic()
+    theme_classic() +
+    labs(
+      title = paste(z[1], "vs.", z[2])
+    )
 }
 
 ```
