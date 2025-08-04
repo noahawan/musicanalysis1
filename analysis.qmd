@@ -88,7 +88,8 @@ chron <- function(z){
     theme_classic() +
     labs(
       title = paste(z[1], "vs.", z[2])
-    )
+    ) +
+    ylim(0,5.5)
 }
 
 ```
